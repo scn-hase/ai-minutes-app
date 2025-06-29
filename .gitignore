@@ -1,0 +1,12 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# Secret files
+*.json  # 👈 これが超重要！認証キーのJSONファイルを除外します
+.streamlit/secrets.toml # Streamlitの秘密情報ファイルも除外します
