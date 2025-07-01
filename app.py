@@ -24,15 +24,11 @@ uploaded_file = st.file_uploader(
     type=["mp3", "wav"]
 )
 
-# ファイルがアップロードされたら処理を開始
-if uploaded_file is not None:
-    st.success(f"ファイル「{uploaded_file.name}」がアップロードされました。")
-    # ここに後続の処理を書いていく
     # ファイルがアップロードされたら処理を開始
 if uploaded_file is not None:
     st.success(f"ファイル「{uploaded_file.name}」がアップロードされました。")
 
-try:
+    try:
         # Streamlit CloudのSecretsから認証情報を読み込む
         creds_dict = st.secrets["gcp_service_account"]
         creds = service_account.Credentials.from_service_account_info(creds_dict)
@@ -43,7 +39,7 @@ try:
         location = "asia-northeast2"
         vertexai.init(project=project_id, location=location, credentials=creds)
     
-except (FileNotFoundError, KeyError):
+    except (FileNotFoundError, KeyError):
         # ローカル環境の場合
         st.info("ローカル環境として実行します。")
         storage_client = storage.Client()
@@ -52,8 +48,8 @@ except (FileNotFoundError, KeyError):
         location = "asia-northeast2"
         vertexai.init(project=project_id, location=location)
     
-    # 処理中であることをユーザーに知らせる
-with st.spinner("ファイルをクラウドにアップロード中..."):
+     # 処理中であることをユーザーに知らせる
+    with st.spinner("ファイルをクラウドにアップロード中..."):
         
         # GCSのバケット名（Step 1-4で作成したもの）
         bucket_name = "scn-giziroku" # 👈 ここをあなたのバケット名に変更！
