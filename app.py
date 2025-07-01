@@ -83,7 +83,7 @@ try:
         location = "asia-northeast2"
         vertexai.init(project=project_id, location=location, credentials=creds)
     
-    except (FileNotFoundError, KeyError):
+except (FileNotFoundError, KeyError):
         # ローカル環境の場合
         st.info("ローカル環境として実行します。")
         storage_client = storage.Client()
@@ -93,7 +93,7 @@ try:
         vertexai.init(project=project_id, location=location)
     
     # 処理中であることをユーザーに知らせる
-    with st.spinner("ファイルをクラウドにアップロード中..."):
+with st.spinner("ファイルをクラウドにアップロード中..."):
         
         # GCSのバケット名（Step 1-4で作成したもの）
         bucket_name = "scn-giziroku" # 👈 ここをあなたのバケット名に変更！
