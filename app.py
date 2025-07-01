@@ -11,46 +11,6 @@ from google.cloud import storage
 # app.py
 import streamlit as st
 
-# === ▼▼▼ ここからデバッグ用コードを追加 ▼▼▼ ===
-st.set_page_config(layout="wide") # ページを広く使う設定
-
-st.title("デバッグ情報")
-
-# Secretsがそもそも存在するかチェック
-if "gcp_service_account" in st.secrets:
-    st.success("✅ `gcp_service_account` はSecretsに存在します。")
-    
-    # Secretsの中身（キーのみ）を表示
-    gcp_secrets = st.secrets["gcp_service_account"]
-    st.write("Secretsに含まれるキー:")
-    st.write(list(gcp_secrets.keys()))
-
-    # 各キーが存在するか個別にチェック
-    required_keys = [
-        "type", "project_id", "private_key_id", "private_key",
-        "client_email", "client_id", "auth_uri", "token_uri",
-        "auth_provider_x509_cert_url", "client_x509_cert_url"
-    ]
-    
-    all_keys_present = True
-    for key in required_keys:
-        if key in gcp_secrets:
-            st.info(f"✅ キー '{key}' は存在します。")
-        else:
-            st.error(f"❌ キー '{key}' が見つかりません！")
-            all_keys_present = False
-            
-    if all_keys_present:
-        st.success("🎉 すべての必須キーが存在します。")
-    else:
-        st.error("いくつかの必須キーが不足しています。Secretsの設定を見直してください。")
-
-else:
-    st.error("❌ `gcp_service_account` がSecretsに見つかりません！セクション名を確認してください。")
-
-st.divider() # 区切り線
-# === ▲▲▲ ここまでデバッグ用コード ▲▲▲ ===
-
 # アプリのタイトルを設定
 st.title("AI議事録作成アプリ 📄✍️")
 st.markdown("""
