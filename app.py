@@ -72,7 +72,7 @@ if uploaded_file is not None:
 if uploaded_file is not None:
     st.success(f"ファイル「{uploaded_file.name}」がアップロードされました。")
 
-     try:
+try:
         # Streamlit CloudのSecretsから認証情報を読み込む
         creds_dict = st.secrets["gcp_service_account"]
         creds = service_account.Credentials.from_service_account_info(creds_dict)
