@@ -26,38 +26,39 @@ uploaded_file = st.file_uploader(
 
     # ファイルがアップロードされたら処理を開始
 if uploaded_file is not None:
+    # --- この行以降は、すべて同じインデントレベルで始める ---
+    
     st.success(f"ファイル「{uploaded_file.name}」がアップロードされました。")
 
+    # --- 認証ブロック ---
     try:
         # Streamlit CloudのSecretsから認証情報を読み込む
         creds_dict = st.secrets["gcp_service_account"]
         creds = service_account.Credentials.from_service_account_info(creds_dict)
         storage_client = storage.Client(credentials=creds)
-        # Vertex AIの初期化にも認証情報を渡す
-        # プロジェクトIDとロケーションはここで直接指定する
-        project_id = "gizirokuapp"  # 👈 あなたのIDに書き換えるのを忘れずに
-        location = "asia-northeast2"
+        project_id = "gizirokuapp"
+        location = "asia-northeast2" # リージョンを大阪に設定
         vertexai.init(project=project_id, location=location, credentials=creds)
     
     except (FileNotFoundError, KeyError):
         # ローカル環境の場合
         st.info("ローカル環境として実行します。")
         storage_client = storage.Client()
-        # プロジェクトIDとロケーションはここで指定する
-        project_id = "gizirokuapp"  # 👈 あなたのIDに書き換えるのを忘れずに
-        location = "asia-northeast2"
+        project_id = "gizirokuapp"
+        location = "asia-northeast2" # リージョンを大阪に設定
         vertexai.init(project=project_id, location=location)
     
-     # 処理中であることをユーザーに知らせる
+    # --- ファイル名の生成 ---
+    # `with`ブロックの前に移動して、ロジックを明確にする
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    blob_name = f"{timestamp}-{uploaded_file.name}"
+    
+    # --- ファイルアップロードブロック ---
+    # `try`ブロックと同じインデントレベルに修正する
     with st.spinner("ファイルをクラウドにアップロード中..."):
         
-        # GCSのバケット名（Step 1-4で作成したもの）
-        bucket_name = "scn-giziroku" # 👈 ここをあなたのバケット名に変更！
+        bucket_name = "scn-giziroku"
         bucket = storage_client.bucket(bucket_name)
-
-        # ファイル名をユニークにするためにタイムスタンプを付与
-        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        blob_name = f"{timestamp}-{uploaded_file.name}"
         
         # GCSにファイルをアップロード
         blob = bucket.blob(blob_name)
