@@ -55,7 +55,7 @@ st.divider() # 区切り線
 st.title("AI議事録作成アプリ 📄✍️")
 st.markdown("""
 このアプリは、音声ファイルをアップロードするだけで、AIが自動で文字起こしと議事録の作成を行います。
-Gemini 1.5 Flashの強力な性能をぜひ体験してください！
+Gemini 2.5 Flashの強力な性能をぜひ体験してください！
 """)
 
 # ファイルアップロードのウィジェットを作成
@@ -117,7 +117,7 @@ if "gcs_uri" in locals():
     with st.spinner("AIが音声を文字起こし中です... この処理には数分かかることがあります。"):
        
         # 使用するモデルを指定 (Gemini 1.5 Flash)
-        model = GenerativeModel(model_name="gemini-1.5-flash-001")
+        model = GenerativeModel(model_name="gemini-2.5-flash")
         
         # GCS上の音声ファイルを指定
         audio_file = Part.from_uri(
