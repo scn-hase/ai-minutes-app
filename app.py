@@ -1,3 +1,4 @@
+from google.oauth2 import service_account
 # app.py の先頭に追加
 import io
 from docx import Document
@@ -9,6 +10,46 @@ import datetime
 from google.cloud import storage
 # app.py
 import streamlit as st
+
+# === ▼▼▼ ここからデバッグ用コードを追加 ▼▼▼ ===
+st.set_page_config(layout="wide") # ページを広く使う設定
+
+st.title("デバッグ情報")
+
+# Secretsがそもそも存在するかチェック
+if "gcp_service_account" in st.secrets:
+    st.success("✅ `gcp_service_account` はSecretsに存在します。")
+    
+    # Secretsの中身（キーのみ）を表示
+    gcp_secrets = st.secrets["gcp_service_account"]
+    st.write("Secretsに含まれるキー:")
+    st.write(list(gcp_secrets.keys()))
+
+    # 各キーが存在するか個別にチェック
+    required_keys = [
+        "type", "project_id", "private_key_id", "private_key",
+        "client_email", "client_id", "auth_uri", "token_uri",
+        "auth_provider_x509_cert_url", "client_x509_cert_url"
+    ]
+    
+    all_keys_present = True
+    for key in required_keys:
+        if key in gcp_secrets:
+            st.info(f"✅ キー '{key}' は存在します。")
+        else:
+            st.error(f"❌ キー '{key}' が見つかりません！")
+            all_keys_present = False
+            
+    if all_keys_present:
+        st.success("🎉 すべての必須キーが存在します。")
+    else:
+        st.error("いくつかの必須キーが不足しています。Secretsの設定を見直してください。")
+
+else:
+    st.error("❌ `gcp_service_account` がSecretsに見つかりません！セクション名を確認してください。")
+
+st.divider() # 区切り線
+# === ▲▲▲ ここまでデバッグ用コード ▲▲▲ ===
 
 # アプリのタイトルを設定
 st.title("AI議事録作成アプリ 📄✍️")
@@ -30,14 +71,29 @@ if uploaded_file is not None:
     # ファイルがアップロードされたら処理を開始
 if uploaded_file is not None:
     st.success(f"ファイル「{uploaded_file.name}」がアップロードされました。")
+
+     try:
+        # Streamlit CloudのSecretsから認証情報を読み込む
+        creds_dict = st.secrets["gcp_service_account"]
+        creds = service_account.Credentials.from_service_account_info(creds_dict)
+        storage_client = storage.Client(credentials=creds)
+        # Vertex AIの初期化にも認証情報を渡す
+        # プロジェクトIDとロケーションはここで直接指定する
+        project_id = "gizirokuapp"  # 👈 あなたのIDに書き換えるのを忘れずに
+        location = "asia-northeast2"
+        vertexai.init(project=project_id, location=location, credentials=creds)
+    
+    except (FileNotFoundError, KeyError):
+        # ローカル環境の場合
+        st.info("ローカル環境として実行します。")
+        storage_client = storage.Client()
+        # プロジェクトIDとロケーションはここで指定する
+        project_id = "gizirokuapp"  # 👈 あなたのIDに書き換えるのを忘れずに
+        location = "asia-northeast2"
+        vertexai.init(project=project_id, location=location)
     
     # 処理中であることをユーザーに知らせる
     with st.spinner("ファイルをクラウドにアップロード中..."):
-        # GCSクライアントを初期化
-        # ローカル環境での実行には、GCPの認証情報ファイルへのパスを環境変数に設定する必要があります。
-        # 例: export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/key.json"
-        # Streamlit Cloudにデプロイする際は、Secretsを使います。
-        storage_client = storage.Client()
         
         # GCSのバケット名（Step 1-4で作成したもの）
         bucket_name = "scn-giziroku" # 👈 ここをあなたのバケット名に変更！
@@ -59,12 +115,7 @@ if uploaded_file is not None:
         # gcs_uri を取得した後の処理
 if "gcs_uri" in locals():
     with st.spinner("AIが音声を文字起こし中です... この処理には数分かかることがあります。"):
-        # Vertex AIを初期化
-        # GCPプロジェクトIDとリージョンを設定
-        project_id = "gizirokuapp"  # 👈 ここをあなたのGCPプロジェクトIDに変更！
-        location = "asia-northeast2"     # 👈 GCSバケットと同じリージョンを推奨
-        vertexai.init(project=project_id, location=location)
-        
+       
         # 使用するモデルを指定 (Gemini 1.5 Flash)
         model = GenerativeModel(model_name="gemini-1.5-flash-001")
         
