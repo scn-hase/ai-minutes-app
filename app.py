@@ -74,7 +74,7 @@ if "gcs_uri" in locals():
     with st.spinner("AIが音声を文字起こし中です... この処理には数分かかることがあります。"):
        
         # 使用するモデルを指定 (Gemini 1.5 Flash)
-        model = GenerativeModel(model_name="gemini-2.5-flash")
+        model = GenerativeModel(model_name="gemini-1.5-flash-001")
         
         # GCS上の音声ファイルを指定
         audio_file = Part.from_uri(
