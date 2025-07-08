@@ -37,7 +37,7 @@ if uploaded_file is not None:
         creds = service_account.Credentials.from_service_account_info(creds_dict)
         storage_client = storage.Client(credentials=creds)
         project_id = "gizirokuapp"
-        location = "asia-northeast2" # リージョンを大阪に設定
+        location = "asia-northeast1" # リージョンを東京に設定
         vertexai.init(project=project_id, location=location, credentials=creds)
     
     except (FileNotFoundError, KeyError):
@@ -45,7 +45,7 @@ if uploaded_file is not None:
         st.info("ローカル環境として実行します。")
         storage_client = storage.Client()
         project_id = "gizirokuapp"
-        location = "asia-northeast2" # リージョンを大阪に設定
+        location = "asia-northeast1" # リージョンを東京に設定
         vertexai.init(project=project_id, location=location)
     
     # --- ファイル名の生成 ---
@@ -57,7 +57,7 @@ if uploaded_file is not None:
     # `try`ブロックと同じインデントレベルに修正する
     with st.spinner("ファイルをクラウドにアップロード中..."):
         
-        bucket_name = "scn-giziroku"
+        bucket_name = "scn-giziroku-tokyo"
         bucket = storage_client.bucket(bucket_name)
         
         # GCSにファイルをアップロード
