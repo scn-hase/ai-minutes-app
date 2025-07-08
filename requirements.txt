@@ -1,4 +1,5 @@
 streamlit
-google-cloud-aiplatform
+google-cloud-aiplatform==1.55.0
 google-cloud-storage
+google-auth
 python-docx
